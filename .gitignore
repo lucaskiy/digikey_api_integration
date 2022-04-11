@@ -1,0 +1,4 @@
+conn/.env
+conn/credentials.json
+conn/database.ini
+venv
