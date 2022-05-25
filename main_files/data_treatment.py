@@ -63,7 +63,7 @@ class DataTreatment:
                     prices['ManufacturerPartNumber'] = product.get('manufacturerpartnumber')
                     prices['QuantityAvailable'] = product.get('quantityavailable')
                     prices['id_date'] = datetime.now().strftime("%Y-%m-%d")
-                    prices['package_type'] = product.get('packaging').get('Value')
+                    prices['package_type'] = product.get('packaging').get('Value').upper()
 
                     prices = self.change_column_names(prices)
                     self.prices_results.append(prices)
