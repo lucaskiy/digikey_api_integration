@@ -20,7 +20,7 @@ class ApiConn:
             res = requests.post(url=self.URL, data=credentials)
 
         except Exception as e:
-            print(f"Error reaching Odoo API service for authentication. Error -> {e}")
+            print(f"Error reaching Digikey API service for authentication. Error -> {e}")
             return False
 
         if res.status_code == 200:
