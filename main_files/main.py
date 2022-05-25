@@ -2,7 +2,6 @@
 import json
 import requests
 from conn.oauth_connection import ApiConn
-import pandas as pd
 from main_files.data_treatment import DataTreatment
 from main_files.database_object import PostgresObject
 
@@ -16,14 +15,14 @@ class ApiQuery(PostgresObject):
         self.data_treatment = DataTreatment()
         self.api_results = []
 
-    def get_part_number_info(self):
+    def get_part_number_info(self, df):
         print("Starting main_files.py file")
-        df = pd.read_csv('BOM PO 001289 .csv', sep=";")
-        part_number_list = df['Part Number'].tolist()
+        part_numbers = df.to_dict('records')
 
-        print(f"Ready to retrieve {len(part_number_list)} part numbers on Digikey API\n")
+        print(f"Ready to retrieve {len(df['Part Number'].unique())} part numbers on Digikey API\n")
 
-        for part_number in part_number_list:
+        for info in part_numbers:
+            part_number = info.get('Part Number')
             url = self.url + str(part_number)
 
             headers = self.get_headers()
@@ -34,6 +33,9 @@ class ApiQuery(PostgresObject):
             params = self.get_params(columns_to_query)
 
             request_call = self.get_request_call(url, part_number, headers, params)
+            request_call['hilab_device'] = info.get('Device')
+            request_call['quantity_needed'] = info.get('Quantity')
+
             if request_call is False:
                 continue
             self.api_results.append(request_call)
@@ -94,13 +96,9 @@ class ApiQuery(PostgresObject):
                 return results
 
             else:
-                print(f"Failed to retrieve information from Odoo API. Code: {res.status_code} -> {str(res.content)}")
+                print(f"Failed to retrieve information from Digikey API. Code: {res.status_code} -> {str(res.content)}")
                 return False
 
         except Exception as error:
             print(f"Something went wrong while retrieving data on part number {part_number}")
             raise error
-
-
-if __name__ == '__main__':
-    ApiQuery().get_part_number_info()
